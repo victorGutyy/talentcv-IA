@@ -4,7 +4,8 @@ Aplicación de escritorio para Windows 11 que crea currículums profesionales co
 
 ## Estado
 
-Fase 0 en curso: base del repositorio y verificación del entorno. Aún no hay código funcional.
+- Fase 0 completada: entorno, benchmark de Ollama y prueba de empaquetado.
+- Fase 1 en curso: backend de perfiles (SQLite, migraciones, seguridad) e interfaz de gestión de perfiles.
 
 ## Arquitectura (resumen)
 
@@ -27,6 +28,26 @@ packaging/     Instalador y empaquetado
 ```
 
 Las decisiones técnicas aprobadas están en [docs/00-decisiones.md](docs/00-decisiones.md).
+
+## Desarrollo local (Windows)
+
+```powershell
+# Backend + interfaz exportada (imprime la URL con el token de sesión)
+powershell -File scripts\run_local.ps1 -Build
+
+# Pruebas y lint del backend
+cd apps\api
+..\..\.venv\Scripts\python.exe -m pytest -q
+..\..\.venv\Scripts\python.exe -m ruff check .
+
+# Lint y tipos de la interfaz
+cd apps\web
+npm run lint
+npx tsc --noEmit
+```
+
+Requiere el entorno virtual `.venv` (Python 3.11) en la raíz y `npm install` en `apps/web`.
+Los datos de desarrollo quedan en `data/dev` (fuera de Git).
 
 ## Reglas críticas
 
