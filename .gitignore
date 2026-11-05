@@ -1,0 +1,39 @@
+# Datos personales: NUNCA al repositorio
+data/*
+!data/.gitkeep
+*.sqlite
+*.sqlite3
+*.db
+*.tcvbackup
+exports/
+uploads/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+
+# Empaquetado
+build/
+dist/
+*.spec.bak
+packaging/output/
+
+# Modelos de IA (GGUF / Ollama)
+*.gguf
+
+# Entorno y editor
+.env
+.env.*
+!.env.example
+.vscode/
+.idea/
+Thumbs.db
