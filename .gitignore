@@ -21,11 +21,17 @@ node_modules/
 .next/
 out/
 
-# Empaquetado
+# Empaquetado (binarios de terceros y resultados: se regeneran con packaging\construir.ps1)
+packaging/vendor/
 build/
 dist/
 *.spec.bak
 packaging/output/
+
+# Claves privadas de firma: jamas al repositorio (la publica si va, en app/updates/clave_publica.py)
+*.key
+*privada*
+*.tcvbackup
 
 # Modelos de IA (GGUF / Ollama)
 *.gguf

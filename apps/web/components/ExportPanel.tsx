@@ -48,12 +48,17 @@ export function ExportPanel() {
     setGenerando(true);
     try {
       const { blob, nombre, version } = await exportacion.exportar(perfilId, plantilla, formato, papel);
-      descargarBlob(blob, nombre);
-      setAviso(
-        `Se generó «${nombre}»` +
-          (version ? ` y quedó guardado en tu historial como versión ${version}.` : ".") +
-          " Ábrelo y revísalo antes de enviarlo.",
-      );
+      const r = await descargarBlob(blob, nombre);
+      const enHistorial = version ? ` Quedó guardado en tu historial como versión ${version}.` : "";
+      if (!r.ok && r.cancelado) {
+        setAviso(`No se guardó el archivo (cancelaste).${enHistorial}`);
+      } else if (!r.ok) {
+        setError(r.error ?? "No se pudo guardar el archivo.");
+      } else {
+        setAviso(
+          (r.ruta ? `Se guardó «${r.ruta}».` : `Se generó «${nombre}».`) + enHistorial + " Ábrelo y revísalo antes de enviarlo.",
+        );
+      }
     } catch (e) {
       setError(mensaje(e));
     } finally {

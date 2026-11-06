@@ -9,10 +9,13 @@ import type {
   Hecho,
   HechoDatos,
   Informe,
+  InfoSistema,
+  PaqueteActualizacion,
   Plantilla,
   Profile,
   ProfileInput,
   ProfileSummary,
+  ResultadoRestauracion,
   Tarea,
   Version,
   VersionDetalle,
@@ -79,7 +82,8 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
       headers: {
         // JSON salvo que quien llama indique otro tipo (subida de archivos).
         ...(typeof init.body === "string" ? { "Content-Type": "application/json" } : {}),
-        "x-tcv-token": memoryToken,
+        ...(init.headers as Record<string, string> | undefined),
+        "x-tcv-token": memoryToken, // siempre el nuestro: ninguna llamada puede pisarlo
       },
     });
   } catch {
@@ -166,6 +170,23 @@ export const versiones = {
     request<ComparacionVersiones>(`/api/versiones/${encodeURIComponent(id)}/comparar?con=${encodeURIComponent(con)}`),
   exportar: (id: string, plantilla: string, formato: "docx" | "pdf", papel: "carta" | "a4") =>
     requestFile(`/api/versiones/${encodeURIComponent(id)}/exportar`, { plantilla, formato, papel }),
+};
+
+export const sistema = {
+  version: () => request<InfoSistema>("/api/sistema/version"),
+  // La contraseña solo viaja en el cuerpo (copia) o en una cabecera (restaurar), nunca en la URL.
+  copia: (contrasena: string | null) => requestFile("/api/sistema/copia", { contrasena }),
+  restaurar: (archivo: File, contrasena: string) =>
+    request<ResultadoRestauracion>("/api/sistema/restaurar", {
+      method: "POST",
+      body: archivo,
+      headers: contrasena ? { "x-tcv-contrasena": encodeURIComponent(contrasena) } : {},
+    }),
+  buscarActualizaciones: () => request<PaqueteActualizacion[]>("/api/sistema/actualizaciones/buscar"),
+  verificarActualizacion: (ruta: string) =>
+    request<PaqueteActualizacion>("/api/sistema/actualizaciones/verificar", { method: "POST", body: JSON.stringify({ ruta }) }),
+  instalarActualizacion: (ruta: string) =>
+    request<PaqueteActualizacion>("/api/sistema/actualizaciones/instalar", { method: "POST", body: JSON.stringify({ ruta }) }),
 };
 
 export const exportacion = {
