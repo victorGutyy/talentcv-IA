@@ -24,7 +24,10 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
-ignore = ["B008"]  # Depends() en argumentos es el idioma normal de FastAPI
+ignore = [
+    "B008",  # Depends() en argumentos es el idioma normal de FastAPI
+    "E501",  # ruff format ya ajusta el codigo; los textos largos en espanol no se parten
+]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["E501"]  # datos de prueba y SQL literal

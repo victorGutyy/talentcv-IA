@@ -131,6 +131,13 @@ export function ProfileList() {
                 >
                   Completar
                 </Link>
+                <Link
+                  href={`/redaccion/?perfil=${encodeURIComponent(p.id)}`}
+                  className={btnSecondary}
+                  aria-label={`Redactar el currículum de ${p.nombre_completo}`}
+                >
+                  Redactar
+                </Link>
                 <button
                   type="button"
                   className={btnSecondary}

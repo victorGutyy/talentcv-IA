@@ -1,5 +1,7 @@
 import type {
+  Borrador,
   Categoria,
+  Comparacion,
   Documento,
   EstadoEntrevista,
   EstadoIA,
@@ -119,6 +121,28 @@ export const documentos = {
   eliminar: (id: string) => request<void>(`/api/documentos/${encodeURIComponent(id)}`, { method: "DELETE" }),
   hechos: (perfilId: string) => request<Hecho[]>(`/api/perfiles/${encodeURIComponent(perfilId)}/hechos`),
   perfil: (id: string) => request<Profile>(`/api/perfiles/${encodeURIComponent(id)}`),
+};
+
+export const redaccion = {
+  redactar: (perfilId: string, puestoObjetivo: string | null) =>
+    request<Tarea>(`/api/perfiles/${encodeURIComponent(perfilId)}/redaccion`, {
+      method: "POST",
+      body: JSON.stringify({ puesto_objetivo: puestoObjetivo }),
+    }),
+  borradores: (perfilId: string) =>
+    request<Borrador[]>(`/api/perfiles/${encodeURIComponent(perfilId)}/borradores`),
+  actuar: (id: string, accion: "aprobar" | "rechazar" | "restaurar") =>
+    request<Borrador>(`/api/borradores/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify({ accion }) }),
+  editar: (id: string, texto: string) =>
+    request<Borrador>(`/api/borradores/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      body: JSON.stringify({ accion: "editar", texto }),
+    }),
+  palabrasClave: (perfilId: string, oferta: string) =>
+    request<Comparacion>(`/api/perfiles/${encodeURIComponent(perfilId)}/palabras-clave`, {
+      method: "POST",
+      body: JSON.stringify({ oferta }),
+    }),
 };
 
 export const entrevista = {

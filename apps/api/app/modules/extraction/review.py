@@ -80,6 +80,12 @@ def validar_datos(categoria: str, datos: dict) -> dict:
     return limpio
 
 
+def etiqueta_experiencia(f: ExtractedFact) -> str:
+    """«Cargo – Empresa»: la clave con la que se ligan los logros a un puesto (campo `contexto`)."""
+    cargo, empresa = f.data.get("cargo"), f.data.get("empresa")
+    return f"{cargo} – {empresa}" if empresa else str(cargo)
+
+
 def get_fact(db: Session, fact_id: str) -> ExtractedFact:
     fact = db.get(ExtractedFact, fact_id)
     if fact is None:

@@ -17,6 +17,7 @@ from app.modules.documents.router import build_router as documents_router
 from app.modules.extraction.router import build_router as extraction_router
 from app.modules.interview.router import build_router as interview_router
 from app.modules.profiles.router import build_router as profiles_router
+from app.modules.writing.router import build_router as writing_router
 from app.orchestrator.handlers import default_handlers
 from app.orchestrator.jobs import JobManager
 from app.orchestrator.router import build_router as tasks_router
@@ -73,6 +74,7 @@ def create_app(
     app.include_router(documents_router(get_session, settings, jobs))
     app.include_router(extraction_router(get_session))
     app.include_router(interview_router(get_session))
+    app.include_router(writing_router(get_session, jobs))
 
     @app.get("/api/estado")
     def estado():

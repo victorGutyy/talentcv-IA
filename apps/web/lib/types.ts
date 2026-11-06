@@ -84,6 +84,23 @@ export type Hecho = {
   updated_at: string;
 };
 
+export type Borrador = {
+  id: string;
+  perfil_id: string;
+  seccion: "resumen" | "logro";
+  puesto_id: string | null;
+  fuentes: string[];
+  texto: string;
+  origen: "ia" | "usuario";
+  estado: "borrador" | "aprobado" | "rechazado";
+  auditoria_ok: boolean;
+  problemas: { tipo: string; detalle: string }[];
+  avisos: string[];
+  actualizado_en: string;
+};
+
+export type Comparacion = { coinciden: string[]; faltan: string[] };
+
 export type CampoPregunta = {
   key: string;
   label: string;

@@ -9,7 +9,8 @@ Aplicación de escritorio para Windows 11 que crea currículums profesionales co
 - Fase 2 completada: motor de IA local (Ollama), tareas en segundo plano con progreso y cancelación. Ver [docs/03-fase2-ia-local.md](docs/03-fase2-ia-local.md).
 - Fase 3 completada: importación de PDF/DOCX/imágenes, OCR y extracción con evidencia. Ver [docs/04-fase3-documentos.md](docs/04-fase3-documentos.md).
 - Fase 4 completada: revisión humana (confirmar, editar, rechazar, datos propios). Ver [docs/05-fase4-revision.md](docs/05-fase4-revision.md).
-- Fase 5 en curso: cuestionario adaptativo para completar lo que falta. Ver [docs/06-fase5-entrevista.md](docs/06-fase5-entrevista.md).
+- Fase 5 completada: cuestionario adaptativo para completar lo que falta. Ver [docs/06-fase5-entrevista.md](docs/06-fase5-entrevista.md).
+- Fase 6 en curso: redacción con IA local y auditor de contenido. Ver [docs/07-fase6-redaccion.md](docs/07-fase6-redaccion.md).
 
 Requiere Tesseract OCR (idioma `spa`) para leer documentos escaneados.
 
