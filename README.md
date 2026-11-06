@@ -4,7 +4,13 @@ Aplicación de escritorio para Windows 11 que crea currículums profesionales co
 
 ## Estado
 
-Fase 0 en curso: base del repositorio y verificación del entorno. Aún no hay código funcional.
+- Fase 0 completada: entorno, benchmark de Ollama y prueba de empaquetado.
+- Fase 1 completada: backend de perfiles (SQLite, migraciones, seguridad) e interfaz de gestión de perfiles.
+- Fase 2 completada: motor de IA local (Ollama), tareas en segundo plano con progreso y cancelación. Ver [docs/03-fase2-ia-local.md](docs/03-fase2-ia-local.md).
+- Fase 3 completada: importación de PDF/DOCX/imágenes, OCR y extracción con evidencia. Ver [docs/04-fase3-documentos.md](docs/04-fase3-documentos.md).
+- Fase 4 en curso: revisión humana (confirmar, editar, rechazar, datos propios). Ver [docs/05-fase4-revision.md](docs/05-fase4-revision.md).
+
+Requiere Tesseract OCR (idioma `spa`) para leer documentos escaneados.
 
 ## Arquitectura (resumen)
 
@@ -27,6 +33,26 @@ packaging/     Instalador y empaquetado
 ```
 
 Las decisiones técnicas aprobadas están en [docs/00-decisiones.md](docs/00-decisiones.md).
+
+## Desarrollo local (Windows)
+
+```powershell
+# Backend + interfaz exportada (imprime la URL con el token de sesión)
+powershell -File scripts\run_local.ps1 -Build
+
+# Pruebas y lint del backend
+cd apps\api
+..\..\.venv\Scripts\python.exe -m pytest -q
+..\..\.venv\Scripts\python.exe -m ruff check .
+
+# Lint y tipos de la interfaz
+cd apps\web
+npm run lint
+npx tsc --noEmit
+```
+
+Requiere el entorno virtual `.venv` (Python 3.11) en la raíz y `npm install` en `apps/web`.
+Los datos de desarrollo quedan en `data/dev` (fuera de Git).
 
 ## Reglas críticas
 

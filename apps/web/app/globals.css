@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+/* Colores con contraste AA en claro y oscuro. */
+:root {
+  --background: #fafaf9;
+  --surface: #ffffff;
+  --foreground: #1c1917;
+  --muted: #57534e;
+  --border: #d6d3d1;
+  --primary: #1d4ed8;
+  --primary-hover: #1e40af;
+  --primary-fg: #ffffff;
+  --danger: #b91c1c;
+  --danger-bg: #fef2f2;
+  --success: #166534;
+  --success-bg: #f0fdf4;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0c0a09;
+    --surface: #1c1917;
+    --foreground: #f5f5f4;
+    --muted: #a8a29e;
+    --border: #44403c;
+    --primary: #60a5fa;
+    --primary-hover: #93c5fd;
+    --primary-fg: #0c0a09;
+    --danger: #fca5a5;
+    --danger-bg: #2a1212;
+    --success: #86efac;
+    --success-bg: #0f2417;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-fg: var(--primary-fg);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --font-sans: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+
+/* Foco siempre visible para navegación con teclado. */
+:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
