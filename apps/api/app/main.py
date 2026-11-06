@@ -23,6 +23,7 @@ from app.modules.writing.router import build_router as writing_router
 from app.orchestrator.handlers import default_handlers
 from app.orchestrator.jobs import JobManager
 from app.orchestrator.router import build_router as tasks_router
+from app.system.router import build_router as system_router
 
 
 def create_app(
@@ -80,6 +81,7 @@ def create_app(
     app.include_router(writing_router(get_session, jobs))
     app.include_router(export_router(get_session))
     app.include_router(versions_router(get_session))
+    app.include_router(system_router(settings, engine, jobs))
 
     @app.get("/api/estado")
     def estado():

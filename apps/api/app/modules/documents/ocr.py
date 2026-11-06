@@ -22,9 +22,20 @@ class OcrError(UserFacingError):
     pass
 
 
+def bundled_dir() -> Path | None:
+    """Tesseract que viaja con la aplicacion instalada (carpeta `tesseract` junto al ejecutable)."""
+    base = Path(sys.executable).parent if getattr(sys, "frozen", False) else None
+    env = os.environ.get("TCV_TESSERACT_DIR")
+    carpeta = Path(env) if env else (base / "tesseract" if base else None)
+    return carpeta if carpeta and (carpeta / "tesseract.exe").exists() else None
+
+
 def find_tesseract(settings: Settings) -> str | None:
     if settings.tesseract_cmd and Path(settings.tesseract_cmd).exists():
         return settings.tesseract_cmd
+    propio = bundled_dir()
+    if propio:  # el que trae la app tiene prioridad: es el que se probo con esta version
+        return str(propio / "tesseract.exe")
     found = shutil.which("tesseract")
     if found:
         return found
@@ -36,6 +47,8 @@ def _tessdata(settings: Settings) -> Path | None:
     appdata = os.environ.get("APPDATA")
     user_dir = Path(appdata) / "TalentCV" / "tessdata" if appdata else Path.home() / ".talentcv" / "tessdata"
     candidates = [settings.tessdata_dir, default_data_dir() / "tessdata", user_dir]
+    if bundled_dir():
+        candidates.insert(0, bundled_dir() / "tessdata")
     if os.environ.get("TESSDATA_PREFIX"):
         candidates.append(Path(os.environ["TESSDATA_PREFIX"]))
     for d in candidates:

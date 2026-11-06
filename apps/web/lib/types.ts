@@ -28,6 +28,20 @@ export type EstadoIA = {
   error: string | null;
 };
 
+export type InfoSistema = { version: string; datos: string; empaquetado: boolean };
+
+export type ResultadoRestauracion = { perfiles: number; documentos: number; copia_previa: string; creada: string };
+
+export type PaqueteActualizacion = {
+  ruta: string;
+  ok: boolean;
+  motivo: "ok" | "sin_paquete" | "formato" | "firma" | "no_es_nueva" | "archivo" | "hash";
+  mensaje: string;
+  version: string | null;
+  notas: string | null;
+  fecha: string | null;
+};
+
 export type TareaEstado = "en_cola" | "ejecutando" | "completado" | "error" | "cancelado" | "interrumpido";
 
 export type ResultadoDiagnostico = {

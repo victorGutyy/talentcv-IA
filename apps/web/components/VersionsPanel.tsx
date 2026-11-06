@@ -153,9 +153,17 @@ export function VersionsPanel() {
     setError(null);
     try {
       const { blob, nombre } = await versiones.exportar(v.id, opc.plantilla, opc.formato, opc.papel);
-      descargarBlob(blob, nombre);
-      setAviso(`Se generó «${nombre}» con el contenido exacto de la versión ${v.numero}.`);
-      setDescargando(null);
+      const r = await descargarBlob(blob, nombre);
+      if (!r.ok && r.cancelado) {
+        setAviso("No se guardó el archivo (cancelaste).");
+      } else if (!r.ok) {
+        setError(r.error ?? "No se pudo guardar el archivo.");
+      } else {
+        setAviso(
+          `${r.ruta ? `Se guardó «${r.ruta}»` : `Se generó «${nombre}»`} con el contenido exacto de la versión ${v.numero}.`,
+        );
+        setDescargando(null);
+      }
       await recargar();
     } catch (e) {
       setError(mensaje(e));

@@ -13,7 +13,7 @@ Aplicación de escritorio para Windows 11 que crea currículums profesionales co
 - Fase 6 completada: redacción con IA local y auditor de contenido. Ver [docs/07-fase6-redaccion.md](docs/07-fase6-redaccion.md).
 - Fase 7 completada: plantillas y exportación a DOCX y PDF. Ver [docs/08-fase7-exportacion.md](docs/08-fase7-exportacion.md).
 - Fase 8 completada: historial de versiones, auditoría de accesibilidad y prueba de recorrido completo. Ver [docs/09-fase8-versiones-y-accesibilidad.md](docs/09-fase8-versiones-y-accesibilidad.md).
-- Pendiente: Fase 9 (empaquetado como aplicación de escritorio, instalador y actualizaciones).
+- Fase 9 completada: aplicación de escritorio, instalador, copias de seguridad cifrables y actualizaciones firmadas por USB. Ver [docs/10-fase9-empaquetado.md](docs/10-fase9-empaquetado.md).
 
 Requiere Tesseract OCR (idioma `spa`) para leer documentos escaneados.
 
@@ -58,6 +58,16 @@ npx tsc --noEmit
 
 Requiere el entorno virtual `.venv` (Python 3.11) en la raíz y `npm install` en `apps/web`.
 Los datos de desarrollo quedan en `data/dev` (fuera de Git).
+
+## Construir el instalador (Windows)
+
+```powershell
+powershell -File packaging\construir.ps1            # interfaz + PyInstaller + autoprueba + instalador
+powershell -File packaging\probar_instalacion.ps1   # instala, actualiza, desinstala y comprueba los datos
+```
+
+Requiere PyInstaller (en `.venv`) e Inno Setup 6. Para publicar una actualización firmada para USB, ver
+[docs/10-fase9-empaquetado.md](docs/10-fase9-empaquetado.md).
 
 ## Reglas críticas
 

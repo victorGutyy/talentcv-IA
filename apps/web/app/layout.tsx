@@ -31,6 +31,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <Link href="/ia/" className="rounded px-3 py-2 text-sm hover:underline">
                 IA local
               </Link>
+              <Link href="/sistema/" className="rounded px-3 py-2 text-sm hover:underline">
+                Sistema
+              </Link>
             </nav>
           </div>
         </header>
