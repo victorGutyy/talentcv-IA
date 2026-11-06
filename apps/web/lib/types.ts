@@ -17,6 +17,39 @@ export type Profile = ProfileInput & {
   actualizado_en: string;
 };
 
+export type EstadoIA = {
+  disponible: boolean;
+  proveedor: string;
+  url: string;
+  modelo: string;
+  modelo_instalado: boolean;
+  version: string | null;
+  modelos: string[];
+  error: string | null;
+};
+
+export type TareaEstado = "en_cola" | "ejecutando" | "completado" | "error" | "cancelado" | "interrumpido";
+
+export type ResultadoDiagnostico = {
+  modelo: string;
+  ok: boolean;
+  verificaciones: Record<string, boolean>;
+  tokens_entrada: number;
+  tokens_salida: number;
+  tokens_por_segundo: number;
+  segundos: number;
+};
+
+export type Tarea = {
+  id: string;
+  tipo: string;
+  estado: TareaEstado;
+  progreso: number;
+  mensaje: string;
+  resultado: ResultadoDiagnostico | null;
+  error: string | null;
+};
+
 export type ProfileSummary = {
   id: string;
   nombre_completo: string;

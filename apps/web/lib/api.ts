@@ -1,4 +1,4 @@
-import type { Profile, ProfileInput, ProfileSummary } from "./types";
+import type { EstadoIA, Profile, ProfileInput, ProfileSummary, Tarea } from "./types";
 
 // En la app instalada la interfaz y el API comparten origen (""). En desarrollo,
 // NEXT_PUBLIC_API_URL apunta al backend local (p. ej. http://127.0.0.1:8000).
@@ -82,6 +82,13 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   }
   return (await res.json()) as T;
 }
+
+export const ia = {
+  estado: () => request<EstadoIA>("/api/ia/estado"),
+  lanzar: (tipo: string) => request<Tarea>("/api/tareas", { method: "POST", body: JSON.stringify({ tipo }) }),
+  tarea: (id: string) => request<Tarea>(`/api/tareas/${encodeURIComponent(id)}`),
+  cancelar: (id: string) => request<Tarea>(`/api/tareas/${encodeURIComponent(id)}/cancelar`, { method: "POST" }),
+};
 
 export const api = {
   listar: () => request<ProfileSummary[]>("/api/perfiles"),

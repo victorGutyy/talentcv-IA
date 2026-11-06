@@ -32,7 +32,7 @@ def test_copia_antes_de_migrar_si_la_bd_no_esta_en_head(settings):
     assert not c1.execute("SELECT name FROM sqlite_master WHERE name='profiles'").fetchone()
     c1.close()
     c2 = sqlite3.connect(settings.db_path)
-    assert c2.execute("SELECT version_num FROM alembic_version").fetchone()[0] == "0001"
+    assert c2.execute("SELECT version_num FROM alembic_version").fetchone()[0] == "0002"
     assert c2.execute("SELECT x FROM previa").fetchone()[0] == 42
     c2.close()
 

@@ -24,9 +24,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <Link href="/" className="text-lg font-semibold">
               TalentCV AI
             </Link>
-            <nav aria-label="Principal">
+            <nav aria-label="Principal" className="flex gap-1">
               <Link href="/" className="rounded px-3 py-2 text-sm hover:underline">
                 Perfiles
+              </Link>
+              <Link href="/ia/" className="rounded px-3 py-2 text-sm hover:underline">
+                IA local
               </Link>
             </nav>
           </div>
