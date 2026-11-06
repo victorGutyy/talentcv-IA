@@ -60,8 +60,22 @@ class Settings:
     model: str = field(default_factory=lambda: os.environ.get("TCV_MODEL", "qwen3:4b-instruct"))
     num_ctx: int = 4096
 
+    # Documentos y OCR
+    tesseract_cmd: str = field(default_factory=lambda: os.environ.get("TCV_TESSERACT", ""))
+    max_upload_bytes: int = 20 * 1024 * 1024
+    max_pdf_pages: int = 40
+    max_text_chars: int = 400_000
+
     def __post_init__(self) -> None:
         validar_url_local(self.ollama_url)
+
+    @property
+    def documents_dir(self) -> Path:
+        return self.data_dir / "documents"
+
+    @property
+    def tessdata_dir(self) -> Path:
+        return self.data_dir / "tessdata"
 
     @property
     def db_path(self) -> Path:

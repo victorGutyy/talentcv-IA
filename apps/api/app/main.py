@@ -12,6 +12,9 @@ from app.ai.ollama import OllamaProvider
 from app.core.config import Settings
 from app.core.db import create_db_engine, make_session_factory, migrate, session_dependency
 from app.core.security import TOKEN_HEADER, install_security
+from app.modules.documents import service as documents
+from app.modules.documents.router import build_router as documents_router
+from app.modules.extraction.router import build_router as extraction_router
 from app.modules.profiles.router import build_router as profiles_router
 from app.orchestrator.handlers import default_handlers
 from app.orchestrator.jobs import JobManager
@@ -33,7 +36,7 @@ def create_app(
     get_session = session_dependency(session_factory)
 
     provider = provider or OllamaProvider(settings)
-    jobs = JobManager(session_factory, provider, default_handlers())
+    jobs = JobManager(session_factory, provider, default_handlers(), settings)
     jobs.recover()
 
     @asynccontextmanager
@@ -60,8 +63,14 @@ def create_app(
             allow_methods=["GET", "POST", "PUT", "DELETE"],
             allow_headers=[TOKEN_HEADER, "content-type"],
         )
-    app.include_router(profiles_router(get_session))
+    app.include_router(
+        profiles_router(
+            get_session, before_delete=lambda db, pid: documents.purge_profile_files(db, settings, pid)
+        )
+    )
     app.include_router(tasks_router(provider, jobs))
+    app.include_router(documents_router(get_session, settings, jobs))
+    app.include_router(extraction_router(get_session))
 
     @app.get("/api/estado")
     def estado():

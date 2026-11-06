@@ -1,4 +1,4 @@
-import type { EstadoIA, Profile, ProfileInput, ProfileSummary, Tarea } from "./types";
+import type { Documento, EstadoIA, Hecho, Profile, ProfileInput, ProfileSummary, Tarea } from "./types";
 
 // En la app instalada la interfaz y el API comparten origen (""). En desarrollo,
 // NEXT_PUBLIC_API_URL apunta al backend local (p. ej. http://127.0.0.1:8000).
@@ -59,7 +59,8 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     res = await fetch(API_BASE + path, {
       ...init,
       headers: {
-        ...(init.body ? { "Content-Type": "application/json" } : {}),
+        // JSON salvo que quien llama indique otro tipo (subida de archivos).
+        ...(typeof init.body === "string" ? { "Content-Type": "application/json" } : {}),
         "x-tcv-token": memoryToken,
       },
     });
@@ -68,10 +69,14 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   }
   if (res.status === 204) return undefined as T;
   if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    // Mensajes que el propio backend redacta en español (HTTPException con texto).
+    if (typeof body?.detail === "string" && res.status !== 401 && res.status !== 403) {
+      throw new ApiError(body.detail, res.status);
+    }
     if (res.status === 422) {
-      const body = await res.json().catch(() => null);
       const fields: Record<string, string> = {};
-      for (const e of body?.detail ?? []) {
+      for (const e of Array.isArray(body?.detail) ? body.detail : []) {
         const campo = String(e.loc?.[1] ?? "");
         const msg = String(e.msg ?? "").replace(/^Value error, /, "");
         if (campo && !fields[campo]) fields[campo] = msg;
@@ -88,6 +93,21 @@ export const ia = {
   lanzar: (tipo: string) => request<Tarea>("/api/tareas", { method: "POST", body: JSON.stringify({ tipo }) }),
   tarea: (id: string) => request<Tarea>(`/api/tareas/${encodeURIComponent(id)}`),
   cancelar: (id: string) => request<Tarea>(`/api/tareas/${encodeURIComponent(id)}/cancelar`, { method: "POST" }),
+};
+
+export const documentos = {
+  listar: (perfilId: string) => request<Documento[]>(`/api/perfiles/${encodeURIComponent(perfilId)}/documentos`),
+  // El archivo viaja como cuerpo crudo; el nombre va en la URL solo para mostrarlo.
+  subir: (perfilId: string, file: File) =>
+    request<{ documento: Documento; tarea: Tarea }>(
+      `/api/perfiles/${encodeURIComponent(perfilId)}/documentos?nombre=${encodeURIComponent(file.name)}`,
+      { method: "POST", body: file },
+    ),
+  texto: (id: string) => request<{ paginas: string[] }>(`/api/documentos/${encodeURIComponent(id)}/texto`),
+  extraer: (id: string) => request<Tarea>(`/api/documentos/${encodeURIComponent(id)}/extraer`, { method: "POST" }),
+  eliminar: (id: string) => request<void>(`/api/documentos/${encodeURIComponent(id)}`, { method: "DELETE" }),
+  hechos: (perfilId: string) => request<Hecho[]>(`/api/perfiles/${encodeURIComponent(perfilId)}/hechos`),
+  perfil: (id: string) => request<Profile>(`/api/perfiles/${encodeURIComponent(id)}`),
 };
 
 export const api = {

@@ -15,7 +15,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.ai.base import LLMError, LLMProvider
+from app.core.config import Settings
 from app.core.db import utcnow
+from app.core.errors import UserFacingError
 from app.orchestrator.models import ACTIVE, Job
 
 log = logging.getLogger("talentcv.jobs")
@@ -36,6 +38,8 @@ class JobContext:
     job_id: str
     params: dict
     provider: LLMProvider
+    settings: Settings
+    session_factory: sessionmaker[Session]
     _report: Callable[[str, float, str | None], None] = field(repr=False)
 
     def report(self, progress: float, message: str | None = None) -> None:
@@ -48,9 +52,11 @@ class JobManager:
         session_factory: sessionmaker[Session],
         provider: LLMProvider,
         handlers: dict[str, Handler],
+        settings: Settings,
         *,
         max_concurrent: int = 1,
     ):
+        self._settings = settings
         self._sf = session_factory
         self._provider = provider
         self._handlers = handlers
@@ -140,7 +146,9 @@ class JobManager:
             async with self._sem:
                 job = self.get(job_id)
                 self._update(job_id, status="ejecutando", started_at=utcnow(), message="Iniciando…")
-                ctx = JobContext(job_id, dict(job.params), self._provider, self._report)
+                ctx = JobContext(
+                    job_id, dict(job.params), self._provider, self._settings, self._sf, self._report
+                )
                 result = await self._handlers[job.kind](ctx)
             self._update(
                 job_id,
@@ -154,7 +162,7 @@ class JobManager:
             self._update(
                 job_id, status="cancelado", message="Cancelada por el usuario.", finished_at=utcnow()
             )
-        except LLMError as e:
+        except (LLMError, UserFacingError) as e:
             self._update(
                 job_id, status="error", message="No se pudo completar.", error=str(e), finished_at=utcnow()
             )

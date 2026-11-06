@@ -1,3 +1,5 @@
+import time
+
 import pytest
 
 BASE = {"nombre_completo": "María Fernanda Orozco"}
@@ -28,6 +30,7 @@ def test_crear_y_obtener(client):
 def test_listar_ordenado_por_actualizacion(client):
     a = crear(client, nombre_completo="Ana")
     b = crear(client, nombre_completo="Beto")
+    time.sleep(0.05)  # el reloj de Windows tiene una resolucion de ~15 ms
     client.put(f"/api/perfiles/{a['id']}", json={"nombre_completo": "Ana Editada"})
     nombres = [x["nombre_completo"] for x in client.get("/api/perfiles").json()]
     assert nombres == ["Ana Editada", "Beto"]

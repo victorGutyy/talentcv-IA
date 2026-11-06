@@ -110,6 +110,13 @@ export function ProfileList() {
                 >
                   Editar
                 </Link>
+                <Link
+                  href={`/documentos/?perfil=${encodeURIComponent(p.id)}`}
+                  className={btnSecondary}
+                  aria-label={`Documentos de ${p.nombre_completo}`}
+                >
+                  Documentos
+                </Link>
                 <button
                   type="button"
                   className={btnSecondary}

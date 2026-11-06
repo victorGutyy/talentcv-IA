@@ -67,4 +67,10 @@ async def diagnostico_ia(ctx: JobContext) -> dict:
 
 
 def default_handlers() -> dict[str, Handler]:
-    return {"diagnostico_ia": diagnostico_ia}
+    from app.orchestrator.doc_handlers import extraer_datos, leer_documento
+
+    return {
+        "diagnostico_ia": diagnostico_ia,
+        "leer_documento": leer_documento,
+        "extraer_datos": extraer_datos,
+    }

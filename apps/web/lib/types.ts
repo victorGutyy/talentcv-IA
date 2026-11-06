@@ -46,8 +46,35 @@ export type Tarea = {
   estado: TareaEstado;
   progreso: number;
   mensaje: string;
-  resultado: ResultadoDiagnostico | null;
+  // Depende del tipo de tarea (p. ej. ResultadoDiagnostico para «diagnostico_ia»).
+  resultado: Record<string, unknown> | null;
   error: string | null;
+};
+
+export type Documento = {
+  id: string;
+  perfil_id: string;
+  nombre: string;
+  tipo: "pdf" | "docx" | "image";
+  tamano: number;
+  estado: "subido" | "leido" | "error";
+  paginas: number;
+  paginas_ocr: number[];
+  error: string | null;
+  creado_en: string;
+};
+
+export type Hecho = {
+  id: string;
+  profile_id: string;
+  document_id: string;
+  category: "contacto" | "experiencia" | "educacion" | "certificacion" | "idioma" | "habilidad" | "logro";
+  data: Record<string, string | string[] | null>;
+  quote: string;
+  page: number | null;
+  dropped_fields: string[];
+  from_ocr: boolean;
+  status: "pendiente" | "confirmado" | "editado" | "rechazado";
 };
 
 export type ProfileSummary = {

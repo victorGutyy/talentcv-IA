@@ -9,7 +9,11 @@ from app.modules.profiles import service
 from app.modules.profiles.schemas import ProfileIn, ProfileOut, ProfileSummary
 
 
-def build_router(get_session: Callable[..., Session]) -> APIRouter:
+def build_router(
+    get_session: Callable[..., Session],
+    before_delete: Callable[[Session, str], None] | None = None,
+) -> APIRouter:
+    """`before_delete(db, profile_id)` permite a otros modulos limpiar recursos externos (archivos)."""
     router = APIRouter(prefix="/api/perfiles", tags=["perfiles"])
 
     def _o404(fn, *args):
@@ -40,6 +44,9 @@ def build_router(get_session: Callable[..., Session]) -> APIRouter:
 
     @router.delete("/{profile_id}", status_code=status.HTTP_204_NO_CONTENT)
     def eliminar(profile_id: str, db: Session = Depends(get_session)):
+        _o404(service.obtener, db, profile_id)  # 404 si no existe
+        if before_delete:
+            before_delete(db, profile_id)
         _o404(service.eliminar, db, profile_id)
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 

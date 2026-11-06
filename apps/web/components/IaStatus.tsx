@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiError, ia, initToken } from "@/lib/api";
-import type { EstadoIA, Tarea } from "@/lib/types";
+import type { EstadoIA, ResultadoDiagnostico, Tarea } from "@/lib/types";
 import { btnPrimary, btnSecondary, cardClass } from "./ui";
 
 const ACTIVAS = ["en_cola", "ejecutando"];
@@ -85,6 +85,8 @@ export function IaStatus() {
   }
 
   const pct = Math.round((tarea?.progreso ?? 0) * 100);
+  const res =
+    tarea?.estado === "completado" && tarea.resultado ? (tarea.resultado as unknown as ResultadoDiagnostico) : null;
   const listo = estado?.disponible && estado.modelo_instalado;
 
   return (
@@ -169,21 +171,21 @@ export function IaStatus() {
             </p>
           )}
 
-          {tarea.estado === "completado" && tarea.resultado && (
+          {res && (
             <div className="mt-3 space-y-3">
               <p
                 className={
-                  tarea.resultado.ok
+                  res.ok
                     ? "rounded-md bg-success-bg p-3 font-medium text-success"
                     : "rounded-md bg-danger-bg p-3 font-medium text-danger"
                 }
               >
-                {tarea.resultado.ok
+                {res.ok
                   ? "✔ La IA local funciona correctamente."
                   : "✖ La IA respondió, pero no pasó todas las verificaciones."}
               </p>
               <ul className="space-y-1 text-sm">
-                {Object.entries(tarea.resultado.verificaciones).map(([k, v]) => (
+                {Object.entries(res.verificaciones).map(([k, v]) => (
                   <li key={k}>
                     <span aria-hidden="true">{v ? "✔" : "✖"}</span>
                     <span className="sr-only">{v ? "Correcto:" : "Falló:"}</span> {ETIQUETAS[k] ?? k}
@@ -191,9 +193,8 @@ export function IaStatus() {
                 ))}
               </ul>
               <p className="text-sm text-muted">
-                Modelo {tarea.resultado.modelo} · {tarea.resultado.tokens_por_segundo} tokens/s ·{" "}
-                {tarea.resultado.segundos} s · {tarea.resultado.tokens_entrada} tokens leídos,{" "}
-                {tarea.resultado.tokens_salida} generados
+                Modelo {res.modelo} · {res.tokens_por_segundo} tokens/s · {res.segundos} s · {res.tokens_entrada}{" "}
+                tokens leídos, {res.tokens_salida} generados
               </p>
             </div>
           )}

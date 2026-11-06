@@ -3,6 +3,8 @@
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+import app.modules.documents.models  # noqa: F401
+import app.modules.extraction.models  # noqa: F401
 import app.modules.profiles.models  # noqa: F401  (registra las tablas en Base.metadata)
 import app.orchestrator.models  # noqa: F401
 from app.core.db import Base
