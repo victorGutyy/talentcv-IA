@@ -1,6 +1,7 @@
 import type {
   Categoria,
   Documento,
+  EstadoEntrevista,
   EstadoIA,
   Hecho,
   HechoDatos,
@@ -120,7 +121,25 @@ export const documentos = {
   perfil: (id: string) => request<Profile>(`/api/perfiles/${encodeURIComponent(id)}`),
 };
 
-export type AccionDato = "confirmar" | "rechazar" | "restaurar";
+export const entrevista = {
+  estado: (perfilId: string) => request<EstadoEntrevista>(`/api/perfiles/${encodeURIComponent(perfilId)}/entrevista`),
+  responder: (perfilId: string, preguntaId: string, valores: Record<string, string>) =>
+    request<EstadoEntrevista>(`/api/perfiles/${encodeURIComponent(perfilId)}/entrevista/responder`, {
+      method: "POST",
+      body: JSON.stringify({ pregunta_id: preguntaId, valores }),
+    }),
+  omitir: (perfilId: string, preguntaId: string) =>
+    request<EstadoEntrevista>(`/api/perfiles/${encodeURIComponent(perfilId)}/entrevista/omitir`, {
+      method: "POST",
+      body: JSON.stringify({ pregunta_id: preguntaId }),
+    }),
+  reiniciar: (perfilId: string) =>
+    request<EstadoEntrevista>(`/api/perfiles/${encodeURIComponent(perfilId)}/entrevista/reiniciar`, {
+      method: "POST",
+    }),
+};
+
+export type AccionDato ="confirmar" | "rechazar" | "restaurar";
 
 export const revision = {
   actuar: (id: string, accion: AccionDato) =>

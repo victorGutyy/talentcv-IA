@@ -84,6 +84,32 @@ export type Hecho = {
   updated_at: string;
 };
 
+export type CampoPregunta = {
+  key: string;
+  label: string;
+  tipo: "texto" | "area" | "lista" | "select";
+  obligatorio: boolean;
+  ayuda: string | null;
+};
+
+export type Pregunta = {
+  id: string;
+  tipo: "perfil" | "campos" | "nuevo" | "logro";
+  categoria: string | null;
+  texto: string;
+  ayuda: string | null;
+  contexto: string | null;
+  opcional: boolean;
+  campos: CampoPregunta[];
+};
+
+export type EstadoEntrevista = {
+  siguiente: Pregunta | null;
+  restantes: number;
+  omitidas: number;
+  pendientes_de_revision: number;
+};
+
 export type ProfileSummary = {
   id: string;
   nombre_completo: string;
