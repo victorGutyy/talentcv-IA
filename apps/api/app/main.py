@@ -14,6 +14,7 @@ from app.core.db import create_db_engine, make_session_factory, migrate, session
 from app.core.security import TOKEN_HEADER, install_security
 from app.modules.documents import service as documents
 from app.modules.documents.router import build_router as documents_router
+from app.modules.export.router import build_router as export_router
 from app.modules.extraction.router import build_router as extraction_router
 from app.modules.interview.router import build_router as interview_router
 from app.modules.profiles.router import build_router as profiles_router
@@ -75,6 +76,7 @@ def create_app(
     app.include_router(extraction_router(get_session))
     app.include_router(interview_router(get_session))
     app.include_router(writing_router(get_session, jobs))
+    app.include_router(export_router(get_session))
 
     @app.get("/api/estado")
     def estado():

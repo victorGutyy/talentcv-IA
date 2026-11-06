@@ -7,6 +7,8 @@ import type {
   EstadoIA,
   Hecho,
   HechoDatos,
+  Informe,
+  Plantilla,
   Profile,
   ProfileInput,
   ProfileSummary,
@@ -121,6 +123,33 @@ export const documentos = {
   eliminar: (id: string) => request<void>(`/api/documentos/${encodeURIComponent(id)}`, { method: "DELETE" }),
   hechos: (perfilId: string) => request<Hecho[]>(`/api/perfiles/${encodeURIComponent(perfilId)}/hechos`),
   perfil: (id: string) => request<Profile>(`/api/perfiles/${encodeURIComponent(id)}`),
+};
+
+/** Descarga un archivo del API (lleva el token en la cabecera) y devuelve el contenido y su nombre. */
+async function requestFile(path: string, body: unknown): Promise<{ blob: Blob; nombre: string }> {
+  let res: Response;
+  try {
+    res = await fetch(API_BASE + path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-tcv-token": memoryToken },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    throw new ApiError("No se pudo conectar con el servicio local. ¿Está en ejecución?", 0);
+  }
+  if (!res.ok) {
+    const j = await res.json().catch(() => null);
+    throw new ApiError(typeof j?.detail === "string" ? j.detail : `No se pudo generar el archivo (${res.status}).`, res.status);
+  }
+  const nombre = /filename="([^"]+)"/.exec(res.headers.get("content-disposition") ?? "")?.[1] ?? "curriculum";
+  return { blob: await res.blob(), nombre };
+}
+
+export const exportacion = {
+  plantillas: () => request<Plantilla[]>("/api/plantillas"),
+  informe: (perfilId: string) => request<Informe>(`/api/perfiles/${encodeURIComponent(perfilId)}/curriculum`),
+  exportar: (perfilId: string, plantilla: string, formato: "docx" | "pdf", papel: "carta" | "a4") =>
+    requestFile(`/api/perfiles/${encodeURIComponent(perfilId)}/exportar`, { plantilla, formato, papel }),
 };
 
 export const redaccion = {

@@ -99,7 +99,35 @@ export type Borrador = {
   actualizado_en: string;
 };
 
-export type Comparacion = { coinciden: string[]; faltan: string[] };
+export type Plantilla = {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  color: string | null;
+  fuente: string;
+  secciones: string[];
+  orden: string[];
+  titulos: Record<string, string>;
+  cabecera_centrada: boolean;
+  linea_bajo_titulos: boolean;
+};
+
+export type CvPuesto = { cargo: string; empresa: string | null; fechas: string | null; puntos: string[] };
+export type CvDatos = {
+  nombre: string;
+  titular: string | null;
+  contacto: { email: string | null; telefono: string | null; ubicacion: string | null; enlaces: string[] };
+  resumen: string | null;
+  experiencia: CvPuesto[];
+  educacion: { titulo: string; institucion: string | null; fecha: string | null }[];
+  habilidades: string[];
+  idiomas: string[];
+  certificaciones: { nombre: string; emisor: string | null; fecha: string | null }[];
+  logros: string[];
+};
+export type Informe = { cv: CvDatos; advertencias: string[] };
+
+export type Comparacion ={ coinciden: string[]; faltan: string[] };
 
 export type CampoPregunta = {
   key: string;
