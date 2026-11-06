@@ -124,6 +124,13 @@ export function ProfileList() {
                 >
                   Revisar datos
                 </Link>
+                <Link
+                  href={`/entrevista/?perfil=${encodeURIComponent(p.id)}`}
+                  className={btnSecondary}
+                  aria-label={`Completar información de ${p.nombre_completo}`}
+                >
+                  Completar
+                </Link>
                 <button
                   type="button"
                   className={btnSecondary}

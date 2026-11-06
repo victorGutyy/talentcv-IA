@@ -22,7 +22,8 @@ CAMPOS: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
     "certificacion": (("nombre", "emisor", "fecha"), ("nombre",)),
     "idioma": (("idioma", "nivel"), ("idioma",)),
     "habilidad": (("nombres",), ("nombres",)),
-    "logro": (("texto",), ("texto",)),
+    # contexto: puesto al que pertenece el logro (lo rellena el cuestionario; opcional)
+    "logro": (("texto", "contexto"), ("texto",)),
 }
 ACCIONES_LOTE = ("confirmar", "rechazar", "restaurar")
 

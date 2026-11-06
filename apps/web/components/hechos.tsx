@@ -52,7 +52,10 @@ export const FORMULARIOS: Record<Categoria, CampoDef[]> = {
     { key: "nivel", label: "Nivel" },
   ],
   habilidad: [{ key: "nombres", label: "Habilidades", tipo: "lista", obligatorio: true, ayuda: "Sepáralas con comas" }],
-  logro: [{ key: "texto", label: "Texto", tipo: "area", obligatorio: true }],
+  logro: [
+    { key: "texto", label: "Texto", tipo: "area", obligatorio: true },
+    { key: "contexto", label: "Puesto al que pertenece", ayuda: "Opcional, p. ej. «Analista – Horizonte»" },
+  ],
 };
 
 export const ESTADOS: Record<Hecho["status"], string> = {
