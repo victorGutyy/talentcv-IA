@@ -1,4 +1,14 @@
-import type { Documento, EstadoIA, Hecho, Profile, ProfileInput, ProfileSummary, Tarea } from "./types";
+import type {
+  Categoria,
+  Documento,
+  EstadoIA,
+  Hecho,
+  HechoDatos,
+  Profile,
+  ProfileInput,
+  ProfileSummary,
+  Tarea,
+} from "./types";
 
 // En la app instalada la interfaz y el API comparten origen (""). En desarrollo,
 // NEXT_PUBLIC_API_URL apunta al backend local (p. ej. http://127.0.0.1:8000).
@@ -108,6 +118,28 @@ export const documentos = {
   eliminar: (id: string) => request<void>(`/api/documentos/${encodeURIComponent(id)}`, { method: "DELETE" }),
   hechos: (perfilId: string) => request<Hecho[]>(`/api/perfiles/${encodeURIComponent(perfilId)}/hechos`),
   perfil: (id: string) => request<Profile>(`/api/perfiles/${encodeURIComponent(id)}`),
+};
+
+export type AccionDato = "confirmar" | "rechazar" | "restaurar";
+
+export const revision = {
+  actuar: (id: string, accion: AccionDato) =>
+    request<Hecho>(`/api/hechos/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify({ accion }) }),
+  editar: (id: string, datos: HechoDatos) =>
+    request<Hecho>(`/api/hechos/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      body: JSON.stringify({ accion: "editar", datos }),
+    }),
+  agregar: (perfilId: string, categoria: Categoria, datos: HechoDatos) =>
+    request<Hecho>(`/api/perfiles/${encodeURIComponent(perfilId)}/hechos`, {
+      method: "POST",
+      body: JSON.stringify({ categoria, datos }),
+    }),
+  lote: (perfilId: string, ids: string[], accion: AccionDato) =>
+    request<{ actualizados: number; ignorados: number }>(
+      `/api/perfiles/${encodeURIComponent(perfilId)}/hechos/lote`,
+      { method: "POST", body: JSON.stringify({ ids, accion }) },
+    ),
 };
 
 export const api = {

@@ -45,14 +45,13 @@ def save_facts(
             ExtractedFact.document_id == document_id, ExtractedFact.status == "pendiente"
         )
     )
-    seen = {
-        fingerprint(f.category, f.data)
-        for f in db.scalars(
-            select(ExtractedFact).where(
-                ExtractedFact.profile_id == profile_id, ExtractedFact.status != "rechazado"
-            )
-        )
-    }
+    seen: set[str] = set()
+    # Se consideran TODOS los estados: un dato rechazado no debe reaparecer al re-extraer, y uno
+    # editado tampoco debe volver con su valor original (p. ej. el correo mal leido por el OCR).
+    for f in db.scalars(select(ExtractedFact).where(ExtractedFact.profile_id == profile_id)):
+        seen.add(fingerprint(f.category, f.data))
+        if f.original_data:
+            seen.add(fingerprint(f.category, f.original_data))
     saved = 0
     for v in facts:
         key = fingerprint(v.category, v.data)
@@ -76,12 +75,21 @@ def save_facts(
     return saved
 
 
+def delete_unapproved_for_document(db: Session, document_id: str) -> None:
+    """Al borrar un documento se van sus datos sin aprobar; los aprobados quedan (document_id = NULL)."""
+    db.execute(
+        delete(ExtractedFact).where(
+            ExtractedFact.document_id == document_id, ExtractedFact.status.in_(("pendiente", "rechazado"))
+        )
+    )
+
+
 def list_facts(
-    db: Session, profile_id: str, document_id: str | None = None, status: str | None = None
+    db: Session, profile_id: str, document_id: str | None = None, statuses: list[str] | None = None
 ) -> list[ExtractedFact]:
     q = select(ExtractedFact).where(ExtractedFact.profile_id == profile_id)
     if document_id:
         q = q.where(ExtractedFact.document_id == document_id)
-    if status:
-        q = q.where(ExtractedFact.status == status)
+    if statuses:
+        q = q.where(ExtractedFact.status.in_(statuses))
     return list(db.scalars(q.order_by(ExtractedFact.category, ExtractedFact.created_at, ExtractedFact.id)))

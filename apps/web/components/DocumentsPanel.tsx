@@ -11,84 +11,9 @@ import { btnPrimary, btnSecondary, cardClass } from "./ui";
 const ACTIVAS = ["en_cola", "ejecutando"];
 const TIPOS: Record<string, string> = { pdf: "PDF", docx: "Word (DOCX)", image: "Imagen" };
 
-const CATEGORIAS: Record<string, string> = {
-  contacto: "Datos de contacto",
-  experiencia: "Experiencia laboral",
-  educacion: "Educación",
-  certificacion: "Certificaciones",
-  idioma: "Idiomas",
-  habilidad: "Habilidades",
-  logro: "Logros y responsabilidades",
-};
-
-const CAMPOS: Record<string, [string, string][]> = {
-  contacto: [["valor", "Valor"]],
-  experiencia: [["cargo", "Cargo"], ["empresa", "Empresa"], ["inicio", "Inicio"], ["fin", "Fin"]],
-  educacion: [["titulo", "Título"], ["institucion", "Institución"], ["fecha_graduacion", "Graduación"]],
-  certificacion: [["nombre", "Nombre"], ["emisor", "Emisor"], ["fecha", "Fecha"]],
-  idioma: [["idioma", "Idioma"], ["nivel", "Nivel"]],
-  habilidad: [["nombres", "Habilidades"]],
-  logro: [["texto", "Texto"]],
-};
-
-const TIPO_CONTACTO: Record<string, string> = {
-  nombre: "Nombre",
-  email: "Correo",
-  telefono: "Teléfono",
-  ciudad: "Ciudad",
-  pais: "País",
-  enlace: "Enlace",
-};
-
 type Seguida = { docId: string; kind: "lectura" | "extraccion"; tarea: Tarea };
 
 const kb = (n: number) => (n >= 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`);
-
-function Valor({ v }: { v: string | string[] | null | undefined }) {
-  const texto = Array.isArray(v) ? v.join(", ") : v;
-  return texto ? <>{texto}</> : <em className="text-muted">No aparece en el documento</em>;
-}
-
-function HechoCard({ h, nombreDoc }: { h: Hecho; nombreDoc: string }) {
-  const campos = CAMPOS[h.category] ?? [];
-  return (
-    <li className={cardClass}>
-      {h.category === "contacto" && (
-        <p className="text-sm font-medium text-muted">{TIPO_CONTACTO[String(h.data.tipo)] ?? "Contacto"}</p>
-      )}
-      <dl className="grid gap-x-4 gap-y-1 text-sm sm:grid-cols-[auto_1fr]">
-        {campos.map(([k, etiqueta]) => (
-          <div key={k} className="contents">
-            <dt className="text-muted">{etiqueta}</dt>
-            <dd className="font-medium">
-              <Valor v={h.data[k]} />
-            </dd>
-          </div>
-        ))}
-      </dl>
-      <figure className="mt-3 border-l-4 border-border pl-3">
-        <blockquote className="text-sm italic">«{h.quote}»</blockquote>
-        <figcaption className="mt-1 text-xs text-muted">
-          Fuente: {nombreDoc}
-          {h.page ? `, página ${h.page}` : ""}
-        </figcaption>
-      </figure>
-      <p className="mt-3 flex flex-wrap gap-2 text-xs">
-        <span className="rounded bg-background px-2 py-1 ring-1 ring-border">Pendiente de confirmar</span>
-        {h.from_ocr && (
-          <span className="rounded bg-danger-bg px-2 py-1 text-danger">
-            Leído por OCR: revisa que esté bien escrito
-          </span>
-        )}
-        {h.dropped_fields.length > 0 && (
-          <span className="rounded bg-danger-bg px-2 py-1 text-danger">
-            No verificado en el documento: {h.dropped_fields.join(", ")}
-          </span>
-        )}
-      </p>
-    </li>
-  );
-}
 
 function TextoLeido({ docId }: { docId: string }) {
   const [paginas, setPaginas] = useState<string[] | null>(null);
@@ -227,7 +152,7 @@ export function DocumentsPanel() {
     setEliminando(true);
     try {
       await documentos.eliminar(aEliminar.id);
-      setAviso(`Se eliminó «${aEliminar.nombre}» y sus datos extraídos.`);
+      setAviso(`Se eliminó «${aEliminar.nombre}». Los datos que ya habías aprobado se conservan.`);
       setAEliminar(null);
       await recargar();
     } catch (e) {
@@ -240,10 +165,6 @@ export function DocumentsPanel() {
 
   const tareaDe = (docId: string, kind: Seguida["kind"]) =>
     Object.values(seguidas).filter((s) => s.docId === docId && s.kind === kind).at(-1)?.tarea;
-  const nombreDoc = (id: string) => docs.find((d) => d.id === id)?.nombre ?? "documento";
-  const porCategoria = Object.keys(CATEGORIAS)
-    .map((c) => [c, hechos.filter((h) => h.category === c)] as const)
-    .filter(([, hs]) => hs.length > 0);
 
   return (
     <section aria-labelledby="titulo-docs" className="space-y-6">
@@ -376,28 +297,25 @@ export function DocumentsPanel() {
         })}
       </ul>
 
-      {porCategoria.length > 0 && (
-        <div className="space-y-6">
-          <h2 className="text-xl font-semibold">Datos encontrados</h2>
-          {porCategoria.map(([cat, hs]) => (
-            <section key={cat} aria-labelledby={`cat-${cat}`}>
-              <h3 id={`cat-${cat}`} className="mb-2 text-lg font-medium">
-                {CATEGORIAS[cat]} ({hs.length})
-              </h3>
-              <ul className="space-y-3">
-                {hs.map((h) => (
-                  <HechoCard key={h.id} h={h} nombreDoc={nombreDoc(h.document_id)} />
-                ))}
-              </ul>
-            </section>
-          ))}
+      {hechos.length > 0 && perfilId && (
+        <div className={cardClass}>
+          <h2 className="text-lg font-medium">Datos encontrados</h2>
+          <p className="mt-1 text-sm">
+            {hechos.length} {hechos.length === 1 ? "dato" : "datos"} en total:{" "}
+            <strong>{hechos.filter((h) => h.status === "pendiente").length} por revisar</strong>,{" "}
+            {hechos.filter((h) => h.status === "confirmado" || h.status === "editado").length} aprobados,{" "}
+            {hechos.filter((h) => h.status === "rechazado").length} rechazados.
+          </p>
+          <Link href={`/revision/?perfil=${encodeURIComponent(perfilId)}`} className={`${btnPrimary} mt-3`}>
+            Revisar y confirmar datos
+          </Link>
         </div>
       )}
 
       <ConfirmDialog
         open={aEliminar !== null}
         title="¿Eliminar este documento?"
-        description={`Se borrará «${aEliminar?.nombre ?? ""}» de este equipo junto con los datos extraídos de él. Esta acción no se puede deshacer.`}
+        description={`Se borrará «${aEliminar?.nombre ?? ""}» de este equipo y los datos extraídos de él que aún no hayas aprobado. Lo que ya confirmaste se conserva. Esta acción no se puede deshacer.`}
         confirmLabel="Eliminar"
         busy={eliminando}
         onConfirm={confirmarEliminar}

@@ -64,17 +64,24 @@ export type Documento = {
   creado_en: string;
 };
 
+export type Categoria = "contacto" | "experiencia" | "educacion" | "certificacion" | "idioma" | "habilidad" | "logro";
+export type HechoDatos = Record<string, string | string[] | null>;
+
 export type Hecho = {
   id: string;
   profile_id: string;
-  document_id: string;
-  category: "contacto" | "experiencia" | "educacion" | "certificacion" | "idioma" | "habilidad" | "logro";
-  data: Record<string, string | string[] | null>;
+  document_id: string | null;
+  origin: "documento" | "manual";
+  category: Categoria;
+  data: HechoDatos;
+  original_data: HechoDatos | null;
   quote: string;
   page: number | null;
   dropped_fields: string[];
   from_ocr: boolean;
   status: "pendiente" | "confirmado" | "editado" | "rechazado";
+  created_at: string;
+  updated_at: string;
 };
 
 export type ProfileSummary = {

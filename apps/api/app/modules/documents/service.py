@@ -16,6 +16,7 @@ from app.modules.documents.files import (
     safe_display_name,
 )
 from app.modules.documents.models import PAGE_SEP, Document
+from app.modules.extraction.service import delete_unapproved_for_document
 from app.modules.profiles.models import Profile
 
 
@@ -95,8 +96,10 @@ def _remove_file(settings: Settings, doc: Document) -> None:
 
 
 def delete(db: Session, settings: Settings, doc_id: str) -> None:
+    """Borra el documento y los datos SIN aprobar. Los aprobados por el usuario se conservan."""
     doc = get(db, doc_id)
     _remove_file(settings, doc)
+    delete_unapproved_for_document(db, doc_id)
     db.delete(doc)
     db.commit()
 
