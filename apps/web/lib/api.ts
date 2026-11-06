@@ -2,6 +2,7 @@ import type {
   Borrador,
   Categoria,
   Comparacion,
+  ComparacionVersiones,
   Documento,
   EstadoEntrevista,
   EstadoIA,
@@ -13,6 +14,8 @@ import type {
   ProfileInput,
   ProfileSummary,
   Tarea,
+  Version,
+  VersionDetalle,
 } from "./types";
 
 // En la app instalada la interfaz y el API comparten origen (""). En desarrollo,
@@ -125,8 +128,10 @@ export const documentos = {
   perfil: (id: string) => request<Profile>(`/api/perfiles/${encodeURIComponent(id)}`),
 };
 
-/** Descarga un archivo del API (lleva el token en la cabecera) y devuelve el contenido y su nombre. */
-async function requestFile(path: string, body: unknown): Promise<{ blob: Blob; nombre: string }> {
+export type Archivo = { blob: Blob; nombre: string; version: number | null };
+
+/** Descarga un archivo del API (lleva el token en la cabecera): contenido, nombre y versión del historial. */
+async function requestFile(path: string, body: unknown): Promise<Archivo> {
   let res: Response;
   try {
     res = await fetch(API_BASE + path, {
@@ -142,8 +147,26 @@ async function requestFile(path: string, body: unknown): Promise<{ blob: Blob; n
     throw new ApiError(typeof j?.detail === "string" ? j.detail : `No se pudo generar el archivo (${res.status}).`, res.status);
   }
   const nombre = /filename="([^"]+)"/.exec(res.headers.get("content-disposition") ?? "")?.[1] ?? "curriculum";
-  return { blob: await res.blob(), nombre };
+  const version = Number(res.headers.get("x-version-number"));
+  return { blob: await res.blob(), nombre, version: Number.isFinite(version) && version > 0 ? version : null };
 }
+
+export const versiones = {
+  listar: (perfilId: string) => request<Version[]>(`/api/perfiles/${encodeURIComponent(perfilId)}/versiones`),
+  guardar: (perfilId: string, etiqueta: string | null) =>
+    request<{ version: Version; creada: boolean }>(`/api/perfiles/${encodeURIComponent(perfilId)}/versiones`, {
+      method: "POST",
+      body: JSON.stringify({ etiqueta }),
+    }),
+  ver: (id: string) => request<VersionDetalle>(`/api/versiones/${encodeURIComponent(id)}`),
+  renombrar: (id: string, etiqueta: string | null) =>
+    request<Version>(`/api/versiones/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify({ etiqueta }) }),
+  eliminar: (id: string) => request<void>(`/api/versiones/${encodeURIComponent(id)}`, { method: "DELETE" }),
+  comparar: (id: string, con: string) =>
+    request<ComparacionVersiones>(`/api/versiones/${encodeURIComponent(id)}/comparar?con=${encodeURIComponent(con)}`),
+  exportar: (id: string, plantilla: string, formato: "docx" | "pdf", papel: "carta" | "a4") =>
+    requestFile(`/api/versiones/${encodeURIComponent(id)}/exportar`, { plantilla, formato, papel }),
+};
 
 export const exportacion = {
   plantillas: () => request<Plantilla[]>("/api/plantillas"),

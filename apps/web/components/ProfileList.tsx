@@ -145,6 +145,13 @@ export function ProfileList() {
                 >
                   Exportar
                 </Link>
+                <Link
+                  href={`/versiones/?perfil=${encodeURIComponent(p.id)}`}
+                  className={btnSecondary}
+                  aria-label={`Versiones del currículum de ${p.nombre_completo}`}
+                >
+                  Versiones
+                </Link>
                 <button
                   type="button"
                   className={btnSecondary}

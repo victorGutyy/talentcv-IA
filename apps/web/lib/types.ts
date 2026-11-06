@@ -127,7 +127,26 @@ export type CvDatos = {
 };
 export type Informe = { cv: CvDatos; advertencias: string[] };
 
-export type Comparacion ={ coinciden: string[]; faltan: string[] };
+export type Version = {
+  id: string;
+  perfil_id: string;
+  numero: number;
+  etiqueta: string | null;
+  origen: "exportacion" | "manual";
+  creada_en: string;
+  exportaciones: { plantilla: string; formato: string; papel: string; fecha: string }[];
+  contenido: { puestos: number; puntos: number; habilidades: number; tiene_resumen: boolean };
+};
+export type VersionDetalle = Version & { cv: CvDatos };
+export type CambioVersion = {
+  seccion: string;
+  tipo: "agregado" | "quitado" | "cambiado";
+  antes: string | null;
+  despues: string | null;
+};
+export type ComparacionVersiones = { antes: string; despues: string; iguales: boolean; cambios: CambioVersion[] };
+
+export type Comparacion = { coinciden: string[]; faltan: string[] };
 
 export type CampoPregunta = {
   key: string;

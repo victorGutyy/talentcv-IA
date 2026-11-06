@@ -1,7 +1,5 @@
 """Rutas de plantillas y exportacion del curriculum."""
 
-import re
-import unicodedata
 from collections.abc import Callable
 from typing import Literal
 
@@ -10,14 +8,12 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.modules.export import cv as cv_mod
-from app.modules.export.docx_render import render_docx
-from app.modules.export.plantillas import PAPELES, PLANTILLAS, Plantilla
+from app.modules.export.archivo import TIPOS, ExportError, generar, nombre_archivo
+from app.modules.export.plantillas import PLANTILLAS, Plantilla
 from app.modules.profiles.models import Profile
+from app.modules.versions import service as versiones
 
-TIPOS = {
-    "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "pdf": "application/pdf",
-}
+__all__ = ["ExportarIn", "build_router", "nombre_archivo", "respuesta_archivo"]
 
 
 class PlantillaOut(BaseModel):
@@ -54,11 +50,19 @@ def _plantilla_out(p: Plantilla) -> PlantillaOut:
     )
 
 
-def nombre_archivo(nombre: str, plantilla: str, formato: str) -> str:
-    """Solo ASCII: sin acentos, espacios ni caracteres peligrosos."""
-    base = unicodedata.normalize("NFKD", nombre).encode("ascii", "ignore").decode()
-    base = re.sub(r"[^A-Za-z0-9]+", "_", base).strip("_") or "Curriculum"
-    return f"CV_{base[:60]}_{plantilla}.{formato}"
+def respuesta_archivo(
+    contenido: bytes, formato: str, nombre: str, numero_version: int, version_id: str
+) -> Response:
+    return Response(
+        content=contenido,
+        media_type=TIPOS[formato],
+        headers={
+            "Content-Disposition": f'attachment; filename="{nombre}"',
+            "Cache-Control": "no-store",
+            "X-Version-Number": str(numero_version),
+            "X-Version-Id": version_id,
+        },
+    )
 
 
 def build_router(get_session: Callable[..., Session]) -> APIRouter:
@@ -82,27 +86,15 @@ def build_router(get_session: Callable[..., Session]) -> APIRouter:
     @router.post("/perfiles/{profile_id}/exportar")
     def exportar(profile_id: str, data: ExportarIn, db: Session = Depends(get_session)):
         perfil = _perfil(db, profile_id)
-        plantilla = PLANTILLAS.get(data.plantilla)
-        if plantilla is None:
-            raise HTTPException(status_code=422, detail="Plantilla desconocida.")
-        if data.papel not in PAPELES:
-            raise HTTPException(status_code=422, detail="Tamaño de papel desconocido.")
         cv = cv_mod.sanear(cv_mod.construir(db, profile_id).cv)
-        if data.formato == "docx":
-            contenido = render_docx(cv, plantilla, data.papel)
-        else:
-            try:
-                from app.modules.export.pdf_render import render_pdf
-            except ImportError:
-                raise HTTPException(
-                    status_code=501, detail="La exportación a PDF no está disponible en esta instalación."
-                ) from None
-            contenido = render_pdf(cv, plantilla, data.papel)
-        archivo = nombre_archivo(perfil.nombre_completo, plantilla.id, data.formato)
-        return Response(
-            content=contenido,
-            media_type=TIPOS[data.formato],
-            headers={"Content-Disposition": f'attachment; filename="{archivo}"', "Cache-Control": "no-store"},
-        )
+        try:
+            contenido = generar(cv, data.plantilla, data.formato, data.papel)
+        except ExportError as e:
+            raise HTTPException(status_code=e.status, detail=str(e)) from None
+        # Cada exportacion deja constancia: la version guarda el contenido exacto del archivo entregado.
+        version, _ = versiones.guardar(db, profile_id, cv, "exportacion")
+        versiones.registrar_exportacion(db, version, data.plantilla, data.formato, data.papel)
+        archivo = nombre_archivo(perfil.nombre_completo, data.plantilla, data.formato)
+        return respuesta_archivo(contenido, data.formato, archivo, version.numero, version.id)
 
     return router
