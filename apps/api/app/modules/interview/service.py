@@ -74,9 +74,7 @@ CAMPOS_EDUCACION = {
 }
 
 
-def _label_experiencia(f: ExtractedFact) -> str:
-    cargo, empresa = f.data.get("cargo"), f.data.get("empresa")
-    return f"{cargo} – {empresa}" if empresa else str(cargo)
+_label_experiencia = review.etiqueta_experiencia
 
 
 def _faltan(f: ExtractedFact, campos: tuple[str, ...]) -> list[str]:

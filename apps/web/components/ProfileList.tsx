@@ -131,6 +131,27 @@ export function ProfileList() {
                 >
                   Completar
                 </Link>
+                <Link
+                  href={`/redaccion/?perfil=${encodeURIComponent(p.id)}`}
+                  className={btnSecondary}
+                  aria-label={`Redactar el currículum de ${p.nombre_completo}`}
+                >
+                  Redactar
+                </Link>
+                <Link
+                  href={`/exportar/?perfil=${encodeURIComponent(p.id)}`}
+                  className={btnSecondary}
+                  aria-label={`Exportar el currículum de ${p.nombre_completo}`}
+                >
+                  Exportar
+                </Link>
+                <Link
+                  href={`/versiones/?perfil=${encodeURIComponent(p.id)}`}
+                  className={btnSecondary}
+                  aria-label={`Versiones del currículum de ${p.nombre_completo}`}
+                >
+                  Versiones
+                </Link>
                 <button
                   type="button"
                   className={btnSecondary}

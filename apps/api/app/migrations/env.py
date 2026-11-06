@@ -7,6 +7,8 @@ import app.modules.documents.models  # noqa: F401
 import app.modules.extraction.models  # noqa: F401
 import app.modules.interview.models  # noqa: F401
 import app.modules.profiles.models  # noqa: F401  (registra las tablas en Base.metadata)
+import app.modules.versions.models  # noqa: F401
+import app.modules.writing.models  # noqa: F401
 import app.orchestrator.models  # noqa: F401
 from app.core.db import Base
 

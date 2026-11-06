@@ -95,7 +95,7 @@ export function HechoCard({ h, nombreDoc, seleccion, children }: CardProps) {
         {seleccion && (
           <input
             type="checkbox"
-            className="mt-1 size-5 shrink-0"
+            className="mt-1 size-6 shrink-0"
             checked={seleccion.marcado}
             onChange={(e) => seleccion.onChange(e.target.checked)}
             aria-label={`Seleccionar: ${resumen(h)}`}

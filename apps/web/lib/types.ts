@@ -84,6 +84,70 @@ export type Hecho = {
   updated_at: string;
 };
 
+export type Borrador = {
+  id: string;
+  perfil_id: string;
+  seccion: "resumen" | "logro";
+  puesto_id: string | null;
+  fuentes: string[];
+  texto: string;
+  origen: "ia" | "usuario";
+  estado: "borrador" | "aprobado" | "rechazado";
+  auditoria_ok: boolean;
+  problemas: { tipo: string; detalle: string }[];
+  avisos: string[];
+  actualizado_en: string;
+};
+
+export type Plantilla = {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  color: string | null;
+  fuente: string;
+  secciones: string[];
+  orden: string[];
+  titulos: Record<string, string>;
+  cabecera_centrada: boolean;
+  linea_bajo_titulos: boolean;
+};
+
+export type CvPuesto = { cargo: string; empresa: string | null; fechas: string | null; puntos: string[] };
+export type CvDatos = {
+  nombre: string;
+  titular: string | null;
+  contacto: { email: string | null; telefono: string | null; ubicacion: string | null; enlaces: string[] };
+  resumen: string | null;
+  experiencia: CvPuesto[];
+  educacion: { titulo: string; institucion: string | null; fecha: string | null }[];
+  habilidades: string[];
+  idiomas: string[];
+  certificaciones: { nombre: string; emisor: string | null; fecha: string | null }[];
+  logros: string[];
+};
+export type Informe = { cv: CvDatos; advertencias: string[] };
+
+export type Version = {
+  id: string;
+  perfil_id: string;
+  numero: number;
+  etiqueta: string | null;
+  origen: "exportacion" | "manual";
+  creada_en: string;
+  exportaciones: { plantilla: string; formato: string; papel: string; fecha: string }[];
+  contenido: { puestos: number; puntos: number; habilidades: number; tiene_resumen: boolean };
+};
+export type VersionDetalle = Version & { cv: CvDatos };
+export type CambioVersion = {
+  seccion: string;
+  tipo: "agregado" | "quitado" | "cambiado";
+  antes: string | null;
+  despues: string | null;
+};
+export type ComparacionVersiones = { antes: string; despues: string; iguales: boolean; cambios: CambioVersion[] };
+
+export type Comparacion = { coinciden: string[]; faltan: string[] };
+
 export type CampoPregunta = {
   key: string;
   label: string;

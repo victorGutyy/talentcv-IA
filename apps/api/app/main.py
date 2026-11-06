@@ -14,9 +14,12 @@ from app.core.db import create_db_engine, make_session_factory, migrate, session
 from app.core.security import TOKEN_HEADER, install_security
 from app.modules.documents import service as documents
 from app.modules.documents.router import build_router as documents_router
+from app.modules.export.router import build_router as export_router
 from app.modules.extraction.router import build_router as extraction_router
 from app.modules.interview.router import build_router as interview_router
 from app.modules.profiles.router import build_router as profiles_router
+from app.modules.versions.router import build_router as versions_router
+from app.modules.writing.router import build_router as writing_router
 from app.orchestrator.handlers import default_handlers
 from app.orchestrator.jobs import JobManager
 from app.orchestrator.router import build_router as tasks_router
@@ -63,6 +66,7 @@ def create_app(
             allow_origins=list(settings.dev_origins),
             allow_methods=["GET", "POST", "PUT", "DELETE"],
             allow_headers=[TOKEN_HEADER, "content-type"],
+            expose_headers=["Content-Disposition", "X-Version-Number", "X-Version-Id"],
         )
     app.include_router(
         profiles_router(
@@ -73,6 +77,9 @@ def create_app(
     app.include_router(documents_router(get_session, settings, jobs))
     app.include_router(extraction_router(get_session))
     app.include_router(interview_router(get_session))
+    app.include_router(writing_router(get_session, jobs))
+    app.include_router(export_router(get_session))
+    app.include_router(versions_router(get_session))
 
     @app.get("/api/estado")
     def estado():
